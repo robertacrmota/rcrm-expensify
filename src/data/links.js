@@ -1,0 +1,15 @@
+export const links_sample = [
+    {exp_id: 0, category_name:'Coffee'}, 
+    {exp_id: 5, category_name:'Coffee'}, 
+    {exp_id: 6, category_name:'Coffee'},
+    {exp_id: 7, category_name:'Coffee'}, 
+    {exp_id: 8, category_name:'Coffee'}, 
+    {exp_id: 10, category_name:'Coffee'}, 
+    {exp_id: 11, category_name:'Coffee'},
+    {exp_id: 13, category_name:'Coffee'}, 
+    {exp_id: 16, category_name:'Coffee'}, 
+    {exp_id: 17, category_name:'Coffee'},
+    {exp_id: 21, category_name:'Coffee'},
+    {exp_id: 23, category_name:'Coffee'},
+    {exp_id: 31, category_name:'Coffee'},
+];

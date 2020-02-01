@@ -1,0 +1,7 @@
+#calendar-toggle:hover{
+    cursor: pointer;
+}
+
+#calendar-toggle:hover path {
+    fill: #011627;
+}

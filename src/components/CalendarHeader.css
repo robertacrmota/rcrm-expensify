@@ -1,0 +1,7 @@
+#calendar-right-arrow:hover, #calendar-left-arrow:hover {
+    cursor: pointer;
+}
+
+#calendar-right-arrow:hover path, #calendar-left-arrow:hover path {
+    fill: #011627;
+}

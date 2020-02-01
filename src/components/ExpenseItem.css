@@ -1,0 +1,34 @@
+li {
+    font-size: .8em;
+    margin: 0;
+}
+
+li:first-child {
+  margin-top: 30px;
+}
+
+li:last-child {
+    border-bottom: none;
+    margin-bottom: 30px;
+}
+
+tr:hover {
+  color: #011627;
+  cursor: pointer;
+}
+
+#expense-table tr td:nth-child(1) {
+  display: none;
+  
+}
+
+#expense-table tr:hover td:nth-child(1) {
+  display: block;
+}
+
+#expense-table tr td {
+  transition: .2s ease-out;
+}
+#expense-table tr:hover td:not(:nth-child(1)) {
+  transform: translateX(5px);
+} 

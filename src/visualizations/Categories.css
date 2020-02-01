@@ -1,0 +1,7 @@
+.category:hover, #delete:hover circle {
+    cursor: pointer;
+}
+
+#delete:hover path {
+    fill: #011627;
+}

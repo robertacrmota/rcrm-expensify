@@ -1,0 +1,34 @@
+li {
+    font-size: .8em;
+    margin: 0;
+}
+
+li:first-child {
+  margin-top: 30px;
+}
+
+li:last-child {
+    border-bottom: none;
+    margin-bottom: 30px;
+}
+
+tr:hover {
+  color: #011627;
+  cursor: pointer;
+}
+
+#category-table tr td:nth-child(1) {
+  display: none;
+  
+}
+
+#category-table tr:hover td:nth-child(1) {
+  display: block;
+}
+
+#category-table tr td {
+  transition: .3s ease;
+}
+#category-table tr:hover td {
+  transform: translateX(5px);
+} 

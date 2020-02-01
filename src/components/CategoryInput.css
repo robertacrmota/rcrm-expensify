@@ -1,0 +1,27 @@
+#category-input-container {
+    margin-top: 15px;
+    z-index : 1;
+  }
+  
+  #category-input-container span {
+    font-weight: 700;
+    margin-right: 15px;
+    color: #011627;
+  }
+  
+  #category-input-container input {
+    width: 115px;
+    border: 0px;
+    background-color: rgba(0, 0, 0, 0);
+    border-bottom: 1px solid #666;
+    margin-right: 10px;
+    margin-left: 20px;
+    margin-top: 5px;
+    outline: none;
+    font-size: .8em;
+  }
+  
+  #category-input-container p {
+    font-size: .7em;
+    color: rgb(236, 55, 49);
+  }
