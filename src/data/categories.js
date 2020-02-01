@@ -2,9 +2,10 @@ export const delete_id = '%delete%';
 
 export const categories_sample = [
     {name: delete_id},
-    {name: 'Groceries'},
+    {name: 'Food'},
     {name: 'Gym'},
     {name: 'Courses'},
     {name: 'Travel'},
-    {name: 'Coffee'}
+    {name: 'Coffee'},
+    {name: 'Tech'}
 ];
