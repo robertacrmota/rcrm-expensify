@@ -1,4 +1,5 @@
 
+![](src/Expensify.gif)
 
 ## Expensify
 
