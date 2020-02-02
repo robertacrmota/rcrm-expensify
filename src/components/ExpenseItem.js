@@ -1,7 +1,6 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
 import * as d3 from 'd3';
-
 import './ExpenseItem.css'
 
 const formatTime = d3.timeFormat("%d.%m.%y");

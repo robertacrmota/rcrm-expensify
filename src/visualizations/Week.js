@@ -2,7 +2,6 @@ import React from 'react';
 import * as d3 from 'd3';
 import chroma from 'chroma-js';
 import _ from 'lodash';
-
 import './Week.css';
 
 const xDayAccessor = day => day.id;
@@ -22,14 +21,6 @@ class Week extends React.Component {
         xScale.domain(_.map(this.props.daysWeek, xDayAccessor));
         xScale.range([0, this.props.svg_width]);
         chromaScale.domain([0, d3.max(_.map(this.props.expenses, exp => exp.amount))]);
-        // chromaScale.domain([0, d3.max(_.map(this.props.weeks, week => _.sumBy(week.expenses, exp => exp.amount)))]);
-
-        // const minIdx = this.props.selectedWeeks[0];
-        // const maxIdx = this.props.selectedWeeks[1];
-        // chromaScale.domain([0, d3.max(_.chain(this.props.weeks)
-        //                                .slice(minIdx, maxIdx + 1)
-        //                                .map(week => _.sumBy(week.expenses, exp => exp.amount)).value()
-        //                              )]);
         
         _.forEach(this.props.daysWeek, day => Object.assign(day, {width: xScale.bandwidth(),}));
 
@@ -98,6 +89,8 @@ class Week extends React.Component {
 
     }
 
+    // Lifecycle --------------------------
+    
     constructor(props){
         super(props);
 

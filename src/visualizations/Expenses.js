@@ -1,21 +1,15 @@
 import React from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
-
 import {getTranslateXValue, getTranslateYValue} from '../Utils';
 import {delete_id} from '../data/categories';
-
+import {expPreview_id} from '../data/expenses';
 import './Expenses.css';
 
-
-
+const simulation = d3.forceSimulation().alphaDecay(0.001).velocityDecay(0.3).stop();
+const radiusScale = d3.scaleLinear().range([7, 15]);
 const formatTime = d3.timeFormat("%d-%m-%y");
 const drag = d3.drag();
-const simulation = d3.forceSimulation()
-                     .alphaDecay(0.001)
-                     .velocityDecay(0.3).stop();
-
-const radiusScale = d3.scaleLinear().range([7, 15]);
 
 class Expenses extends React.Component {
     svgRef;
@@ -54,9 +48,8 @@ class Expenses extends React.Component {
         d3.event.subject.fx = null;
         d3.event.subject.fy = null;
 
-        // check if new link was defined
+        // check new link creation
         if (this.draggedLink) {
-
             if (this.draggedLink.category.name === delete_id) {
                 this.props.deleteCategoryLink(this.draggedLink);
             }
@@ -66,8 +59,7 @@ class Expenses extends React.Component {
             this.draggedLink = null;
         }
         
-        
-        // check if updated expense's date
+        // check update on expense's date
         else if (this.props.visMode === this.props.VisModes.Calendar){
             const deltaY = this.props.svg_categoryHeight;
             let draggedDay = null;
@@ -79,9 +71,6 @@ class Expenses extends React.Component {
                 const transl = d3.select(this).attr('transform');
                 const x = getTranslateXValue(transl);
                 const y = getTranslateYValue(transl) + deltaY;
-
-                // console.log(`${d3.event.x} - ${x} - ${(x+w)} `);
-                // console.log(`${d3.event.y} - ${y} - ${(y+h)} `);
 
                 if ((d3.event.x > x) && (d3.event.x < x+w) && (d3.event.y > y) && (d3.event.y < y+h)) {  
                     const newDate = d3.select(this).datum().date;
@@ -106,27 +95,7 @@ class Expenses extends React.Component {
     }
 
     calculateVisData = () => {
-        console.log('Updating Expenses.js');
         radiusScale.domain(d3.extent(this.props.expenses, exp => exp.amount));
-
-        // expenses
-        _.forEach(this.props.expenses, exp => {
-            // const id = '#d-' + formatTime(exp.date);
-            // const gDate = d3.select(id);
-            
-            // // console.log(gDate);
-            // const x = getTranslateXValue(gDate.attr('transform'));
-            // const y = getTranslateYValue(gDate.attr('transform'));
-
-            // let deltaY = this.props.svg_height - this.props.svg_categoryHeight - this.props.svg_margin.bottom;
-            // deltaY = deltaY / this.props.selectedWeeks_range; //(d3.timeWeek.range(weekExtent[0], d3.timeWeek.offset(weekExtent[1],1)).length)
-
-            let deltaY = this.props.svg_height - this.props.svg_categoryHeight - this.props.svg_margin.bottom;
-            deltaY = deltaY / this.props.selectedWeeks_range; //(d3.timeWeek.range(weekExtent[0], d3.timeWeek.offset(weekExtent[1],1)).length)
-
-            exp.focusX = this.props.daysWeek[exp.date.getDay()].width *.5;
-            exp.focusY = this.props.svg_categoryHeight + deltaY *.5;
-        });
 
         this.data.expenses = _.chain(this.props.expenses)
                                 .filter(exp => {
@@ -150,37 +119,26 @@ class Expenses extends React.Component {
                                         exp.focusY = exp_category.y+exp_category.radius*Math.sin(angle);
                                     }
                                     else {
-                                            // const week = '#w-' + formatTime(d3.timeWeek.floor(exp.date));
                                             const id = '#d-' + formatTime(exp.date);
                                             const gDate = d3.select(id);
                                             
-                                            // console.log(gDate);
                                             const x = getTranslateXValue(gDate.attr('transform'));
                                             const y = getTranslateYValue(gDate.attr('transform'));
 
-                                            // const weekExtent = d3.extent(this.data.expenses, exp => d3.timeWeek.floor(exp.date));
                                             let deltaY = this.props.svg_height - this.props.svg_categoryHeight - this.props.svg_margin.bottom;
-                                            deltaY = deltaY / this.props.selectedWeeks_range; //(d3.timeWeek.range(weekExtent[0], d3.timeWeek.offset(weekExtent[1],1)).length)
+                                            deltaY = deltaY / this.props.selectedWeeks_range;
 
                                             exp.focusX = exp.dayX = x + this.props.daysWeek[exp.date.getDay()].width *.5;
                                             exp.focusY = exp.dayY =  y + this.props.svg_categoryHeight + deltaY *.5;
-                                            console.log(exp);
                                     }
                                 });
         
-                                // ::::: TODO ::::::
                                 if (this.props.expensePreview !== null) {
-                                    console.log('oe');
                                     this.data.expenses.push(Object.assign(this.props.expensePreview, {
-                                        focusX: 400,
-                                        focusY: 400,
-                                        // fx: -180,
-                                        // fy: 500,
-                                        radius: 10,
-                                        amount: 200
+                                        x: -180,
+                                        y: 180,
+                                        radius: 10
                                     }));
-
-                                    console.log(this.props.expensePreview);
                                 }
     }
 
@@ -189,7 +147,7 @@ class Expenses extends React.Component {
     renderExpenseCircles = () => {
         // join
         this.vis.expenseCircles = this.svg.selectAll('.expense')
-                                            .data(this.data.expenses, exp => exp.id);
+                                            .data(this.data.expenses.filter(exp => exp.id !== expPreview_id), exp => exp.id);
 
         // remove
         this.vis.expenseCircles.exit().remove();
@@ -197,37 +155,61 @@ class Expenses extends React.Component {
         // enter + update
         this.vis.expenseCircles = this.vis.expenseCircles.enter()
                             .append('circle')
-                                .classed('expense', true) 
-                            .merge(this.vis.expenseCircles)
+                                .classed('expense', true)
+                                .merge(this.vis.expenseCircles)
                                 .attr('r', d => radiusScale(d.amount))
                                 .attr('fill', '#FDFFFC')
                                 .attr('stroke', d=> {
-                                    const exp_category = this.props.links.get(d.id);
-
-                                    if (exp_category) return '#415a77';
+                                    if (this.props.visMode === this.props.VisModes.Category){
+                                        const exp_category = this.props.links.get(d.id);
+                                        if (exp_category) return '#415a77';
+                                    }
                                     return '#FDFFFC';                                
                                 })
                                 .call(drag)
                                 .on("mouseover", function(d) {		
-                                    let tooltip = d3.select("#tooltip")		
-                                                            .style("opacity", .9)	
-                                                            .style("left", (d3.select(this).attr("cx") + 150) + "px")		
-                                                            .style("top", (d3.select(this).attr("cy") - 60) + "px")
-                                                            .html(function() {
-                                                                const dot = d.description.length > 10 ? '.' : '';
-                                                                return d.description.substring(0, 10) + dot + "<br/>" + "$" + d.amount.toFixed(2);
-                                                            });	
+                                    d3.select("#tooltip")		
+                                        .style("opacity", .9)	
+                                        .style("left", (d3.select(this).attr("cx") + 150) + "px")		
+                                        .style("top", (d3.select(this).attr("cy") - 60) + "px")
+                                        .html(function() {
+                                                const dot = d.description.length > 10 ? '.' : '';
+                                                return `${d.description.substring(0, 10)}  ${dot} <br/> $ ${d.amount.toFixed(2)}`;
+                                        });	
                                     })					
                                 .on("mouseout", function(d) {		
                                     d3.select("#tooltip")	
                                         .style("opacity", 0);	
                                 });
+
+        
+    }
+
+    renderPreviewCircle = () => {
+        // join
+        this.vis.expensePrevCircle = this.svg.selectAll(`#${expPreview_id}`)
+                                            .data(this.data.expenses.filter(d => d.id === expPreview_id), exp => exp.id);
+
+        // remove
+        this.vis.expensePrevCircle.exit().remove();
+        
+        // enter + update
+        const enter_transition = d3.transition().duration(800).ease(d3.easeBounceOut);
+
+        this.vis.expensePrevCircle = this.vis.expensePrevCircle.enter()
+                            .append('circle')
+                                .attr("id", expPreview_id)
+                                .classed('expense', true)
+                                .merge(this.vis.expensePrevCircle)
+                                .attr('cx', d => d.x)
+                                .attr('cy', d => d.y)
+                                .attr('fill', '#aaa')
+                                .transition(enter_transition)
+                                .attr('r', d => d.radius);
     }
 
     forceTick = () => {
-        this.vis.expenseCircles
-            .attr("cx", d => d.x) 
-            .attr("cy", d => d.y);
+        this.vis.expenseCircles.attr("cx", d => d.x).attr("cy", d => d.y);
     }
 
     // React lifecycle ---------------
@@ -248,6 +230,7 @@ class Expenses extends React.Component {
 
         this.calculateVisData();
         this.renderExpenseCircles();
+        this.renderPreviewCircle();
 
         simulation.nodes(this.data.expenses)  
             .on('tick', this.forceTick)
@@ -263,6 +246,7 @@ class Expenses extends React.Component {
 
         this.calculateVisData();
         this.renderExpenseCircles();
+        this.renderPreviewCircle();
 
         simulation.nodes(this.data.expenses)
             .alpha(0.9)

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import './CategoryInput.css';
 
 class CategoryInput extends React.Component {

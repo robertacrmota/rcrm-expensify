@@ -1,6 +1,6 @@
 // color pallette: https://coolors.co/011627-fdfffc-2ec4b6-e71d36-ff9f1c
 
-let svgDefs = {
+let SVG = {
     width: 1000,
     height: 1000,
     margin: {top: 40, right: 40, bottom: 200, left: 40},
@@ -17,4 +17,4 @@ let daysWeek = [
     {id: 6, label: 'S'}
   ];
 
-export  {svgDefs, daysWeek};
+export  {SVG, daysWeek};

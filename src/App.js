@@ -20,14 +20,15 @@ import Categories from './visualizations/Categories';
 import Expenses from './visualizations/Expenses';
 import Calendar from './visualizations/Calendar';
 
-import {svgDefs, daysWeek} from './visualizations/Utils';
+import {SVG, daysWeek} from './visualizations/Utils';
 
-import {categories_sample, delete_id} from './data/categories';
+import {categories_sample, catPreview_name, delete_id} from './data/categories';
+import {expPreview_id} from "./data/expenses";
 import {exps} from './data/expenses';
 import {links_sample} from './data/links';
 
 const VisModes = {Category: 1, Calendar: 0};
-const selectedWeeks_range = 3;
+const selectedWeeks_range = 5;
 
 
 
@@ -40,7 +41,7 @@ class App extends React.Component {
         const exp = {description, amount, date};
         const exp_sundayDate = d3.timeWeek.floor(date);
 
-        // update state.weeks with new week range
+        // update state.weeks with a new week range, if required
         let weeks = null;
         if (exp_sundayDate.getTime() < _.first(this.state.weeks).sundayDate.getTime()) {
             weeks = d3.timeWeek.range(exp_sundayDate, _.first(this.state.weeks).sundayDate);
@@ -50,6 +51,7 @@ class App extends React.Component {
                                       d3.timeWeek.offset(exp_sundayDate,1));
         }
 
+        // add new expense to state.weeks
         if(weeks) {
           weeks = _.map(weeks, week => {
             const sundayDate = d3.timeWeek.floor(week);
@@ -63,7 +65,6 @@ class App extends React.Component {
                     .value();
         }
         else {
-          // add new expense to state.weeks
            _.forEach(this.state.weeks, week => {
             if (week.sundayDate.getTime() === exp_sundayDate.getTime()) {
                 week.expenses.push(exp);
@@ -77,7 +78,6 @@ class App extends React.Component {
         let minWeek = _.findIndex(weeks, week => week.sundayDate.getTime() === exp_sundayDate.getTime());
         minWeek = Math.min(minWeek, length - selectedWeeks_range);
         const maxWeek = Math.min(minWeek + selectedWeeks_range - 1, length - 1);
-        console.log(minWeek, maxWeek);
         const id = this.state.expenses.length > 0 ? this.state.expenses[this.state.expenses.length - 1].id + 1 : 0;
         exp.id = id;
         let exps = _.concat(this.state.expenses, exp);
@@ -92,7 +92,7 @@ class App extends React.Component {
   };
 
   deleteExpense = (expense) => {
-    // remove expense from week's expenses
+    // remove expense from state.week's expenses
     const exp_sundayDate = d3.timeWeek.floor(expense.date);
 
     _.forEach(this.state.weeks, week => {
@@ -105,55 +105,46 @@ class App extends React.Component {
     let links = this.state.links.clone();
     links.remove(expense.id);
 
-    //
     const expenses = _.filter(this.state.expenses, exp => exp.id !== expense.id);
-    this.setState(() => ({expenses, links, selectedWeeks: [this.state.selectedWeeks[0], this.state.selectedWeeks[1]]}));
+    this.setState(() => ({expenses, links, selectedWeeks: _.cloneDeep(this.state.selectedWeeks)}));
   }
 
   updateExpenseDate = (draggedDay) => {
-    //console.log(draggedDay);
     const {expense, oldDate, oldSundayDate, newDate, newSundayDate} = draggedDay;
 
     // update expense's date
     expense.date = newDate;
 
-    
     if (oldSundayDate.getTime() !== newSundayDate.getTime()) {;
-
-      // remove exp from current week's expenses
-      // add exp to new week's expenses
+      // remove exp from current week's expenses, then add exp to new week's expenses
       _.forEach(this.state.weeks, week => {
         if (week.sundayDate.getTime() === newSundayDate.getTime()) {
           week.expenses.push(expense);
-          //console.log(week.expenses)
         }
         else if (week.sundayDate.getTime() === oldSundayDate.getTime()) {
           _.remove(week.expenses, exp => exp === expense);
-          //console.log(week.expenses);
         }
       });
     } 
 
-    //console.log(this.state.weeks);
-    this.setState(prevState => ({selectedWeeks: [this.state.selectedWeeks[0], this.state.selectedWeeks[1]]}));
+    this.setState(prevState => ({selectedWeeks: _.cloneDeep(this.state.selectedWeeks)}));
     this.forceUpdate();
   };
   
   previewExpense = (preview) => {
-    
     if (!preview) {
-      const expense = _.filter(this.state.expenses, exp => exp.id !== 10000);
+      const expense = _.filter(this.state.expenses, exp => exp.id !== expPreview_id);
       this.setState(prevState => ({expensePreview: null}));
     }
     else if (preview && !this.state.expensePreview) {
-      this.setState(prevState => ({expensePreview: {id: 10000}}));
+      this.setState(prevState => ({expensePreview: {id: expPreview_id}}));
     }
   }
 
   // Category ---------------------------------
 
   addCategory = (category) => { 
-    let categories = _.filter(this.state.categories, c => c.name !== '')
+    let categories = _.filter(this.state.categories, c => c.name !== catPreview_name)
     categories = [...categories, {name: category}];
     this.setState(prevState => ({categories: categories, categoryPreview: null}));
   }
@@ -173,23 +164,20 @@ class App extends React.Component {
 
   previewCategory = (preview) => {
     if (!preview) {
-      const categories = _.filter(this.state.categories, c => c.name !== '')
+      const categories = _.filter(this.state.categories, c => c.name !== catPreview_name)
       this.setState(prevState => ({categories, categoryPreview: null}));
     }
     else if (preview && !this.state.categoryPreview) {
-      this.setState(prevState => ({categoryPreview: {name: ''}}));
+      this.setState(prevState => ({categoryPreview: {name: catPreview_name}}));
     }
   }
 
-  // :::: TODO ::::
   surroundCategories = (x, y) => {
-      console.log(x, y);
-
       this.setState(prevState => ({categoriesFocus: {x, y}, expenses: _.flatten(this.state.expenses)}));
   }
 
   updateExpenses = () => {
-    const expenses = _.filter(this.state.expenses, e => e.dummy !== 'dummy');
+    const expenses = _.cloneDeep(this.state.expenses);
     this.setState(prevState => ({expenses}));
   }
 
@@ -277,10 +265,10 @@ class App extends React.Component {
   render() {
       const props = {
         VisModes,
-        svg_width: svgDefs.width, 
-        svg_height: svgDefs.height, 
-        svg_margin: svgDefs.margin,
-        svg_categoryHeight: svgDefs.categoryHeight,
+        svg_width: SVG.width, 
+        svg_height: SVG.height, 
+        svg_margin: SVG.margin,
+        svg_categoryHeight: SVG.categoryHeight,
         daysWeek,
         selectedWeeks_range,
         backSelectedWeeks: this.backSelectedWeeks,
@@ -334,7 +322,7 @@ class App extends React.Component {
             </Col>
             <Col ref={this.svgColRef} sm={'auto'}>
               <div id='tooltip'/>
-              <svg width={svgDefs.width} height={svgDefs.height} onClick={(e) => { this.surroundCategories(e.nativeEvent.offsetX, e.nativeEvent.offsetY)}}>
+              <svg width={SVG.width} height={SVG.height} onClick={(e) => { this.surroundCategories(e.nativeEvent.offsetX, e.nativeEvent.offsetY)}}>
                       <CalendarHeader {...props} {...this.state}/>
                       <Calendar {...props} {...this.state}/>
                       <Expenses  {...props} {...this.state} />   

@@ -1,6 +1,5 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
-
 import './CategoryItem.css'
 
 class CategoryItem extends React.Component {
@@ -26,7 +25,12 @@ class CategoryItem extends React.Component {
                 <Table borderless size='sm' id="category-table">
                         <tbody>
                             <tr>
-                                <td><span className="delete-icon" onClick={this.handleDelete} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut}><i className={`${this.state.icon} fa-times-circle`}></i></span></td>
+                                <td><span className="delete-icon" onClick={this.handleDelete} 
+                                                                  onMouseOver={this.handleMouseOver} 
+                                                                  onMouseOut={this.handleMouseOut}>
+                                        <i className={`${this.state.icon} fa-times-circle`}></i>
+                                     </span>
+                                </td>
                                 <td>{this.props.name}</td>
                             </tr>
                         </tbody>

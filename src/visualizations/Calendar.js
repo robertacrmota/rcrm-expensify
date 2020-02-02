@@ -1,7 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
-
 import Week from './Week';
 
 
@@ -21,13 +20,10 @@ class Calendar extends React.Component {
 
         this.data.weeks = _.map(this.data.weeks, week => Object.assign(week, {
                                 y: yScale(week.sundayDate),
-                                height: yScale.range()[1] / this.props.selectedWeeks_range
-                    }));
+                                height: yScale.range()[1] / this.props.selectedWeeks_range}));
     }
 
-    renderWeeks = () => {
-        console.log("Updating Calendar.js");
-        
+    renderWeeks = () => {        
         this.calculateVisData();
 
         if (this.data.weeks) {

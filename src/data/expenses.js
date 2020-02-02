@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 // zero-based: 11 - Dec, 1- Feb
 const dateRange = d3.timeDay.range(new Date(2020, 0, 1), new Date(2020, 2, 1), 1);
 
+export const expPreview_id = 'EXPENSE_PREVIEW';
 export const exps = [
 {id: 0, description: 'Tim Hortons', amount: 3.45, date: dateRange[Math.floor(Math.random() * dateRange.length)]}, 
 {id: 1, description: 'Villa Madina', amount: 30, date: dateRange[Math.floor(Math.random() * dateRange.length)]},
